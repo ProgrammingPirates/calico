@@ -83,10 +83,7 @@ object Modifier:
    * Automatically derives a `Modifier[F, E, CustomModifier[F, E]]` instance
    * for any type that extends `CustomModifier[F, E]`.
    */
-  inline given forCustomModifier[F[_], E, M <: CustomModifier[F, E]]: Modifier[F, E, M] =
-    _forCustomModifier.asInstanceOf[Modifier[F, E, M]]
-
-  private val _forCustomModifier: Modifier[Id, Any, CustomModifier[Id, Any]] =
+  given forCustomModifier[F[_], E, M <: CustomModifier[F, E]]: Modifier[F, E, M] =
     (customModifier, element) => customModifier.apply(element)
 
   given forTuple[F[_], E, M <: Tuple](

@@ -16,9 +16,9 @@
 
 package calico
 
+import calico.html.CustomModifier
 import calico.html.io.*
 import calico.html.io.given
-import calico.html.CustomModifier
 import cats.effect.*
 import cats.syntax.all.*
 import fs2.concurrent.*
