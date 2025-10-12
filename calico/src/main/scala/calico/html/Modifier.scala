@@ -69,7 +69,9 @@ trait CustomModifier[F[_], E]:
    * This is a convenience method for common cases where you just want to
    * perform a side effect on the element.
    */
-  protected def sync[A](element: E)(f: E => A)(using F: cats.effect.kernel.Sync[F]): Resource[F, Unit] =
+  protected def sync[A](element: E)(f: E => A)(using
+      F: cats.effect.kernel.Sync[F]
+  ): Resource[F, Unit] =
     Resource.eval(F.delay(f(element)).void)
 
 object Modifier:
@@ -109,15 +111,17 @@ object Modifier:
       fa.contramap(f)
 
   private[html] def forSignal[F[_], E, M, V](signal: M => Signal[F, V])(
-      mkModify: (M, E) => V => F[Unit])(using F: Async[F]): Modifier[F, E, M] = (m, e) =>
+      mkModify: (M, E) => V => F[Unit]
+  )(using F: Async[F]): Modifier[F, E, M] = (m, e) =>
     signal(m).getAndDiscreteUpdates.flatMap { (head, tail) =>
       val modify = mkModify(m, e)
       Resource.eval(modify(head)) *>
         (F.cede *> tail.foreach(modify(_)).compile.drain).background.void
     }
 
-  private[html] def forSignalResource[F[_], E, M, V](signal: M => Resource[F, Signal[F, V]])(
-      mkModify: (M, E) => V => F[Unit])(using F: Async[F]): Modifier[F, E, M] = (m, e) =>
+  private[html] def forSignalResource[F[_], E, M, V](
+      signal: M => Resource[F, Signal[F, V]]
+  )(mkModify: (M, E) => V => F[Unit])(using F: Async[F]): Modifier[F, E, M] = (m, e) =>
     signal(m).flatMap { sig =>
       sig.getAndDiscreteUpdates.flatMap { (head, tail) =>
         val modify = mkModify(m, e)
@@ -196,8 +200,13 @@ private trait Modifiers[F[_]](using F: Async[F]):
       S <: Signal[F, Option[Resource[F, N2]]]
   ]: Modifier[F, N, S] = _forNodeOptionSignal.asInstanceOf[Modifier[F, N, S]]
 
-  private val _forNodeOptionSignal
-      : Modifier[F, dom.Node, Signal[F, Option[Resource[F, dom.Node]]]] = (n2s, n) =>
-    Resource.eval(F.delay(Resource.pure[F, dom.Node](dom.document.createComment("")))).flatMap {
-      sentinel => _forNodeSignal.modify(n2s.map(_.getOrElse(sentinel)), n)
-    }
+  private val _forNodeOptionSignal: Modifier[
+    F,
+    dom.Node,
+    Signal[F, Option[Resource[F, dom.Node]]]
+  ] = (n2s, n) =>
+    Resource
+      .eval(F.delay(Resource.pure[F, dom.Node](dom.document.createComment(""))))
+      .flatMap { sentinel =>
+        _forNodeSignal.modify(n2s.map(_.getOrElse(sentinel)), n)
+      }
