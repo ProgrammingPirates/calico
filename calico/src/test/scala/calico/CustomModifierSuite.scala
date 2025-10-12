@@ -28,7 +28,8 @@ import org.scalajs.dom
 class CustomModifierSuite extends FunSuite:
 
   test("CustomModifier can be used as a modifier") {
-    case class DataAttribute(value: String) extends CustomModifier[IO, dom.Element]:
+    case class DataAttribute(value: String)
+        extends CustomModifier[IO, dom.Element]:
       def apply(element: dom.Element): Resource[IO, Unit] =
         Resource.eval(IO.delay(element.setAttribute("data-test", value)))
 
@@ -43,7 +44,8 @@ class CustomModifierSuite extends FunSuite:
   }
 
   test("CustomModifier works with HTML DSL") {
-    case class CustomClass(className: String) extends CustomModifier[IO, dom.Element]:
+    case class CustomClass(className: String)
+        extends CustomModifier[IO, dom.Element]:
       def apply(element: dom.Element): Resource[IO, Unit] =
         Resource.eval(IO.delay(element.classList.add(className)))
 
@@ -59,7 +61,8 @@ class CustomModifierSuite extends FunSuite:
   }
 
   test("CustomModifier can be combined with other modifiers") {
-    case class CustomStyle(style: String) extends CustomModifier[IO, dom.Element]:
+    case class CustomStyle(style: String)
+        extends CustomModifier[IO, dom.Element]:
       def apply(element: dom.Element): Resource[IO, Unit] =
         Resource.eval(IO.delay(element.setAttribute("style", style)))
 
@@ -75,7 +78,8 @@ class CustomModifierSuite extends FunSuite:
   }
 
   test("CustomModifier works with signals") {
-    case class DynamicAttribute(name: String, value: String) extends CustomModifier[IO, dom.Element]:
+    case class DynamicAttribute(name: String, value: String)
+        extends CustomModifier[IO, dom.Element]:
       def apply(element: dom.Element): Resource[IO, Unit] =
         Resource.eval(IO.delay(element.setAttribute(name, value)))
 
@@ -95,7 +99,8 @@ class CustomModifierSuite extends FunSuite:
   }
 
   test("CustomModifier can use the sync helper method") {
-    case class SimpleAttribute(name: String, value: String) extends CustomModifier[IO, dom.Element]:
+    case class SimpleAttribute(name: String, value: String)
+        extends CustomModifier[IO, dom.Element]:
       def apply(element: dom.Element): Resource[IO, Unit] =
         sync(element)(_.setAttribute(name, value))
 
@@ -107,7 +112,8 @@ class CustomModifierSuite extends FunSuite:
   }
 
   test("CustomModifier can handle complex logic") {
-    case class ConditionalModifier(condition: Boolean, value: String) extends CustomModifier[IO, dom.Element]:
+    case class ConditionalModifier(condition: Boolean, value: String)
+        extends CustomModifier[IO, dom.Element]:
       def apply(element: dom.Element): Resource[IO, Unit] =
         if condition then
           Resource.eval(IO.delay(element.setAttribute("data-active", value)))
@@ -127,14 +133,17 @@ class CustomModifierSuite extends FunSuite:
     assert(element.getAttribute("data-active") == null)
   }
 
-  test("CustomModifier demonstrates the improvement over manual typeclass implementation") {
+  test(
+    "CustomModifier demonstrates the improvement over manual typeclass implementation"
+  ) {
     // OLD WAY (verbose and not intuitive):
     // case class OldStyleModifier(value: String)
     // given Modifier[IO, dom.Element, OldStyleModifier] = (modifier, element) =>
     //   Resource.eval(IO.delay(element.setAttribute("data-old", modifier.value)))
     
     // NEW WAY (simple and intuitive):
-    case class NewStyleModifier(value: String) extends CustomModifier[IO, dom.Element]:
+    case class NewStyleModifier(value: String)
+        extends CustomModifier[IO, dom.Element]:
       def apply(element: dom.Element): Resource[IO, Unit] =
         Resource.eval(IO.delay(element.setAttribute("data-new", value)))
 

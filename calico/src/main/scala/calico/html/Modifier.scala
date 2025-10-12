@@ -85,8 +85,9 @@ object Modifier:
    * Automatically derives a `Modifier[F, E, CustomModifier[F, E]]` instance
    * for any type that extends `CustomModifier[F, E]`.
    */
-  given forCustomModifier[F[_], E, M <: CustomModifier[F, E]]: Modifier[F, E, M] =
-    (customModifier, element) => customModifier.apply(element)
+  given forCustomModifier[F[_], E, M <: CustomModifier[F, E]]
+      : Modifier[F, E, M] = (customModifier, element) =>
+    customModifier.apply(element)
 
   given forTuple[F[_], E, M <: Tuple](
       using inst: K0.ProductInstances[Modifier[F, E, _], M]

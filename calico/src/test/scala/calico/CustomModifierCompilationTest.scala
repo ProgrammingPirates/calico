@@ -26,7 +26,8 @@ import org.scalajs.dom
 class CustomModifierCompilationTest extends FunSuite:
 
   test("CustomModifier typeclass instance should be found") {
-    case class TestModifier(value: String) extends CustomModifier[IO, dom.Element]:
+    case class TestModifier(value: String)
+        extends CustomModifier[IO, dom.Element]:
       def apply(element: dom.Element): Resource[IO, Unit] =
         Resource.eval(IO.delay(element.setAttribute("data-test", value)))
 
@@ -40,7 +41,8 @@ class CustomModifierCompilationTest extends FunSuite:
   }
 
   test("CustomModifier should work with HTML DSL") {
-    case class SimpleModifier(value: String) extends CustomModifier[IO, dom.Element]:
+    case class SimpleModifier(value: String)
+        extends CustomModifier[IO, dom.Element]:
       def apply(element: dom.Element): Resource[IO, Unit] =
         Resource.eval(IO.delay(element.setAttribute("data-simple", value)))
 
