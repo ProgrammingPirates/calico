@@ -1,12 +1,12 @@
 /*
  * Copyright 2022 Arman Bilge
- *
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,21 +40,20 @@ trait Modifier[F[_], E, A]:
 
 /**
  * A trait that makes it easier to implement custom modifiers.
- * 
- * Instead of implementing the `Modifier[F, E, A]` typeclass directly,
- * you can extend this trait and implement the `apply` method.
- * The typeclass instance will be automatically derived.
- * 
+ *
+ * Instead of implementing the `Modifier[F, E, A]` typeclass directly, you can extend this trait
+ * and implement the `apply` method. The typeclass instance will be automatically derived.
+ *
  * Example:
  * ```scala
  * case class DataAttribute(value: String) extends CustomModifier[IO, dom.Element]:
  *   def apply(element: dom.Element): Resource[IO, Unit] =
  *     Resource.eval(IO.delay(element.setAttribute("data-custom", value)))
- * 
+ *
  * // Usage in HTML DSL:
  * div(DataAttribute("hello"), "Content")
  * ```
- * 
+ *
  * This is much simpler than the previous approach which required:
  * ```scala
  * given Modifier[IO, dom.Element, DataAttribute] = (attr, elem) =>
@@ -65,12 +64,12 @@ trait CustomModifier[F[_], E]:
   def apply(element: E): Resource[F, Unit]
 
   /**
-   * Helper method for simple synchronous operations that don't need cleanup.
-   * This is a convenience method for common cases where you just want to
-   * perform a side effect on the element.
+   * Helper method for simple synchronous operations that don't need cleanup. This is a
+   * convenience method for common cases where you just want to perform a side effect on the
+   * element.
    */
-  protected def sync[A](element: E)(f: E => A)(using
-      F: cats.effect.kernel.Sync[F]
+  protected def sync[A](element: E)(f: E => A)(
+      using F: cats.effect.kernel.Sync[F]
   ): Resource[F, Unit] =
     Resource.eval(F.delay(f(element)).void)
 
@@ -82,12 +81,11 @@ object Modifier:
     (_, _) => Resource.unit
 
   /**
-   * Automatically derives a `Modifier[F, E, CustomModifier[F, E]]` instance
-   * for any type that extends `CustomModifier[F, E]`.
+   * Automatically derives a `Modifier[F, E, CustomModifier[F, E]]` instance for any type that
+   * extends `CustomModifier[F, E]`.
    */
-  given forCustomModifier[F[_], E, M <: CustomModifier[F, E]]
-      : Modifier[F, E, M] = (customModifier, element) =>
-    customModifier.apply(element)
+  given forCustomModifier[F[_], E, M <: CustomModifier[F, E]]: Modifier[F, E, M] =
+    (customModifier, element) => customModifier.apply(element)
 
   given forTuple[F[_], E, M <: Tuple](
       using inst: K0.ProductInstances[Modifier[F, E, _], M]
@@ -206,8 +204,6 @@ private trait Modifiers[F[_]](using F: Async[F]):
     dom.Node,
     Signal[F, Option[Resource[F, dom.Node]]]
   ] = (n2s, n) =>
-    Resource
-      .eval(F.delay(Resource.pure[F, dom.Node](dom.document.createComment(""))))
-      .flatMap { sentinel =>
-        _forNodeSignal.modify(n2s.map(_.getOrElse(sentinel)), n)
-      }
+    Resource.eval(F.delay(Resource.pure[F, dom.Node](dom.document.createComment("")))).flatMap {
+      sentinel => _forNodeSignal.modify(n2s.map(_.getOrElse(sentinel)), n)
+    }

@@ -1,12 +1,12 @@
 /*
  * Copyright 2022 Arman Bilge
- *
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,8 +29,7 @@ class CustomModifierSuite extends FunSuite:
   // or interact with the DOM at runtime. Constructing Resources is fine.
 
   test("basic custom modifier compiles with HTML DSL") {
-    case class DataAttribute(value: String)
-        extends CustomModifier[IO, dom.Element]:
+    case class DataAttribute(value: String) extends CustomModifier[IO, dom.Element]:
       def apply(element: dom.Element): Resource[IO, Unit] =
         Resource.eval(IO.unit)
 
@@ -39,8 +38,7 @@ class CustomModifierSuite extends FunSuite:
   }
 
   test("custom modifier can be combined with other modifiers") {
-    case class CustomClass(name: String)
-        extends CustomModifier[IO, dom.Element]:
+    case class CustomClass(name: String) extends CustomModifier[IO, dom.Element]:
       def apply(element: dom.Element): Resource[IO, Unit] =
         Resource.eval(IO.unit)
 
